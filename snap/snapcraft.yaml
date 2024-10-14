@@ -76,9 +76,9 @@ parts:
       - gcc
       - cmake
       - sed
-      - libcudnn8
+      - libcudnn9-cuda-12
       - libcublas-12-3
-      - libcudnn8-dev
+      - libcudnn9-dev-cuda-12
       - libcublas-dev-12-3
       - cuda-cudart-dev-12-3
       - cuda-driver-dev-12-3
