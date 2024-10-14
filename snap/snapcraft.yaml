@@ -87,8 +87,6 @@ parts:
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       craftctl set version="$(git describe --tags | sed 's/v//')"
     override-build: |
-      echo $SNAPCRAFT_STAGE
-      echo `ls $SNAPCRAFT_STAGE/llm/generate/gen_linux.sh.patch`
       git apply $SNAPCRAFT_STAGE/llm/generate/gen_linux.sh.patch
       go generate ./...
       craftctl default
