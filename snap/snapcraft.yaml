@@ -70,7 +70,7 @@ parts:
     # source-tag: v0.3.13
     after:
       - patches
-    # build packages only because ollama build copies in cudnn, cublas
+    # build packages (not staged) because ollama copies in cudnn, cublas etc
     build-packages:
       - git
       - gcc
