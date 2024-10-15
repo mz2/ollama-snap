@@ -67,7 +67,7 @@ parts:
     plugin: go
     source: https://github.com/ollama/ollama.git
     source-type: git
-    # source-tag: v0.3.13
+    source-tag: v0.3.13
     after:
       - patches
     # build packages (not staged) because ollama copies in cudnn, cublas etc
