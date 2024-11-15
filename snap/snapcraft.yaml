@@ -99,3 +99,4 @@ parts:
       git apply $SNAPCRAFT_STAGE/llm/generate/gen_linux.sh.patch
       go generate ./...
       craftctl default
+      cp -r "${CRAFT_PART_BUILD}/dist/linux-${CRAFT_ARCH_BUILD_FOR}/lib" "${CRAFT_PART_INSTALL}/."
