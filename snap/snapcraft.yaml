@@ -58,18 +58,12 @@ parts:
     source: ./snap/local
     organize:
       snap_launcher.sh: bin/snap_launcher.sh
-  patches:
-    plugin: dump
-    source: ./patches
-    prime:
-      - -*
   ollama:
     plugin: go
+    go-generate: ["./..."]
     source: https://github.com/ollama/ollama.git
     source-type: git
-    source-tag: v0.3.13
-    after:
-      - patches
+    source-tag: v0.4.7
     # build packages (not staged) because ollama copies in cudnn, cublas etc
     build-packages:
       - git
@@ -90,12 +84,12 @@ parts:
       - go/stable
     build-environment:
       - LD_LIBRARY_PATH: "/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/nvidia/:/usr/local/cuda-12.6/compat/:$LD_LIBRARY_PATH"
+      - GOFLAGS: -ldflags=-w -s \"-X=github.com/ollama/ollama/version.Version=0.4.7\" \"-X=github.com/ollama/ollama/server.mode=release\"
     override-pull: |
       craftctl default
       last_committed_tag="$(git describe --tags --abbrev=0)"
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       craftctl set version="$(git describe --tags | sed 's/v//')"
     override-build: |
-      git apply $SNAPCRAFT_STAGE/llm/generate/gen_linux.sh.patch
-      go generate ./...
       craftctl default
+      cp -r "${CRAFT_PART_BUILD}/dist/linux-${CRAFT_ARCH_BUILD_FOR}/lib" "${CRAFT_PART_INSTALL}/."
