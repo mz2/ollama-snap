@@ -84,6 +84,7 @@ parts:
       - go/stable
     build-environment:
       - LD_LIBRARY_PATH: "/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/nvidia/:/usr/local/cuda-12.6/compat/:$LD_LIBRARY_PATH"
+      - GOFLAGS: -ldflags=-w -s \"-X=github.com/ollama/ollama/version.Version=0.4.7\" \"-X=github.com/ollama/ollama/server.mode=release\"
     override-pull: |
       craftctl default
       last_committed_tag="$(git describe --tags --abbrev=0)"
