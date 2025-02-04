@@ -1,7 +1,6 @@
 ---
 name: ollama
-base: core22
-version: "0.1" # rewritten by adopt-info & `snapcraftctl set-version` below
+base: core24
 summary: Get up and running with large language models locally.
 description: |
   Run Llama 2, Code Llama, and other models. Customize and create your own.
@@ -9,11 +8,9 @@ adopt-info: ollama
 grade: stable
 confinement: strict
 license: MIT
-architectures:
-  - build-on: [amd64]
-    build-for: [amd64]
-  - build-on: [arm64]
-    build-for: [arm64]
+platforms:
+  amd64:
+  arm64:
 
 package-repositories:
   - type: apt
@@ -21,13 +18,13 @@ package-repositories:
     architectures: [amd64]
     path: /
     key-id: EB693B3035CD5710E231E123A4B469963BF863CC
-    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64
+    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64
   - type: apt
     formats: [deb]
     architectures: [arm64]
     path: /
     key-id: EB693B3035CD5710E231E123A4B469963BF863CC
-    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64
+    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/arm64
 
 apps:
   ollama:
@@ -58,18 +55,11 @@ parts:
     source: ./snap/local
     organize:
       snap_launcher.sh: bin/snap_launcher.sh
-  patches:
-    plugin: dump
-    source: ./patches
-    prime:
-      - -*
   ollama:
     plugin: go
     source: https://github.com/ollama/ollama.git
     source-type: git
-    source-tag: v0.3.13
-    after:
-      - patches
+    source-tag: v0.5.7
     # build packages (not staged) because ollama copies in cudnn, cublas etc
     build-packages:
       - git
@@ -89,13 +79,9 @@ parts:
     build-snaps:
       - go/stable
     build-environment:
-      - LD_LIBRARY_PATH: "/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/nvidia/:/usr/local/cuda-12.6/compat/:$LD_LIBRARY_PATH"
+      - LD_LIBRARY_PATH: "/usr/lib/${CRAFT_ARCH_TRIPLET}/nvidia/:/usr/local/cuda-12.6/compat/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     override-pull: |
       craftctl default
       last_committed_tag="$(git describe --tags --abbrev=0)"
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       craftctl set version="$(git describe --tags | sed 's/v//')"
-    override-build: |
-      git apply $SNAPCRAFT_STAGE/llm/generate/gen_linux.sh.patch
-      go generate ./...
-      craftctl default
