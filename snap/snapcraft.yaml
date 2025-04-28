@@ -1,6 +1,6 @@
 ---
 name: ollama
-version: v0.5.7
+version: v0.6.6
 base: core24
 summary: Get up and running with large language models locally.
 description: |
@@ -71,12 +71,12 @@ parts:
       - libcudnn9-cuda-12
       - libcudnn9-dev-cuda-12
       - on amd64:
-        - cuda-cudart-dev-12-6
-        - cuda-driver-dev-12-6
-        - cuda-toolkit-12-6
+        - cuda-cudart-dev-12-8
+        - cuda-driver-dev-12-8
+        - cuda-toolkit-12-8
         - nvidia-cuda-dev
-        - libcublas-12-6
-        - libcublas-dev-12-6
+        - libcublas-12-8
+        - libcublas-dev-12-8
         - tensorrt-libs
         - tensorrt-dev
     build-snaps:
@@ -94,7 +94,7 @@ parts:
     stage-packages:
       - libcudnn9-cuda-12
       - on amd64:
-        - libcublas-12-6
-        - cuda-libraries-12-6
+        - libcublas-12-8
+        - cuda-libraries-12-8
     stage:
       - -usr/local
