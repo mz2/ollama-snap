@@ -1,5 +1,6 @@
 ---
 name: ollama
+version: v0.5.7
 base: core24
 summary: Get up and running with large language models locally.
 description: |
@@ -60,7 +61,7 @@ parts:
     plugin: go
     source: https://github.com/ollama/ollama.git
     source-type: git
-    source-tag: v0.6.6
+    source-tag: $SNAPCRAFT_PROJECT_VERSION
     # build packages (not staged) because ollama copies in cudnn, cublas etc
     build-packages:
       - git
@@ -68,15 +69,16 @@ parts:
       - cmake
       - sed
       - libcudnn9-cuda-12
-      - libcublas-12-8
       - libcudnn9-dev-cuda-12
-      - libcublas-dev-12-8
-      - cuda-cudart-dev-12-8
-      - cuda-driver-dev-12-8
-      - tensorrt-libs
-      - tensorrt-dev
-      - cuda-toolkit-12-8
-      - nvidia-cuda-dev
+      - on amd64:
+        - cuda-cudart-dev-12-6
+        - cuda-driver-dev-12-6
+        - cuda-toolkit-12-6
+        - nvidia-cuda-dev
+        - libcublas-12-6
+        - libcublas-dev-12-6
+        - tensorrt-libs
+        - tensorrt-dev
     build-snaps:
       - go/stable
     build-environment:
@@ -91,7 +93,8 @@ parts:
     plugin: nil
     stage-packages:
       - libcudnn9-cuda-12
-      - libcublas-12-8
-      - cuda-libraries-12-8
+      - on amd64:
+        - libcublas-12-6
+        - cuda-libraries-12-6
     stage:
       - -usr/local
