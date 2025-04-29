@@ -13,20 +13,6 @@ platforms:
   amd64:
   arm64:
 
-package-repositories:
-  - type: apt
-    formats: [deb]
-    architectures: [amd64]
-    path: /
-    key-id: EB693B3035CD5710E231E123A4B469963BF863CC
-    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64
-  - type: apt
-    formats: [deb]
-    architectures: [arm64]
-    path: /
-    key-id: EB693B3035CD5710E231E123A4B469963BF863CC
-    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/arm64
-
 apps:
   ollama:
     command: bin/snap_launcher.sh
@@ -36,6 +22,8 @@ apps:
       - network
       - network-bind
       - opengl # grants also CUDA based GPU access
+    environment:
+      LD_LIBRARY_PATH: "$SNAP/lib/ollama:/var/lib/snapd/lib/gl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   listener:
     command: bin/snap_launcher.sh serve
     daemon: simple
@@ -50,6 +38,7 @@ apps:
       - opengl
     environment:
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      LD_LIBRARY_PATH: "$SNAP/lib/ollama:/var/lib/snapd/lib/gl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 parts:
   launcher:
@@ -57,44 +46,9 @@ parts:
     source: ./snap/local
     organize:
       snap_launcher.sh: bin/snap_launcher.sh
-  ollama:
-    plugin: go
-    source: https://github.com/ollama/ollama.git
-    source-type: git
-    source-tag: $SNAPCRAFT_PROJECT_VERSION
-    # build packages (not staged) because ollama copies in cudnn, cublas etc
-    build-packages:
-      - git
-      - gcc
-      - cmake
-      - sed
-      - libcudnn9-cuda-12
-      - libcudnn9-dev-cuda-12
-      - on amd64:
-        - cuda-cudart-dev-12-8
-        - cuda-driver-dev-12-8
-        - cuda-toolkit-12-8
-        - nvidia-cuda-dev
-        - libcublas-12-8
-        - libcublas-dev-12-8
-        - tensorrt-libs
-        - tensorrt-dev
-    build-snaps:
-      - go/stable
-    build-environment:
-      - LD_LIBRARY_PATH: "/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/nvidia/:/usr/local/cuda-12.8/compat/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-    override-pull: |
-      craftctl default
-      last_committed_tag="$(git describe --tags --abbrev=0)"
-      last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
-      craftctl set version="$(git describe --tags | sed 's/v//')"
 
-  libs:
-    plugin: nil
-    stage-packages:
-      - libcudnn9-cuda-12
-      - on amd64:
-        - libcublas-12-8
-        - cuda-libraries-12-8
-    stage:
-      - -usr/local
+  ollama:
+    plugin: dump
+    source: https://github.com/ollama/ollama/releases/download/$SNAPCRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
+    prime:
+      - -lib/ollama/cuda_v11
