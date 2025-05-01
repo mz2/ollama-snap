@@ -1,0 +1,48 @@
+name: Sync with upstream
+
+on:
+  # Runs at 04:00 UTC every day
+  schedule:
+    - cron:  '0 4 * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Run only for the 'main' branch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.OLLAMA_REPO_TOKEN }}
+          ref: main
+      - name: Fetch release versions
+        run: |
+          VERSION=$(
+            curl -sL https://api.github.com/repos/ollama/ollama/tags | 
+            jq .  | grep name | grep -v tip | grep -v beta | grep -v rc | head -n 1 | cut -d'"' -f4
+          )
+          if [ ${#VERSION} -gt 0 ]; then
+            sed -i 's/^\(version: \).*$/\1'"$VERSION"'/' snap/snapcraft.yaml
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
+      - name: Check for modified files
+        id: git-check
+        run: |
+          MODIFIED=$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+          echo "modified=$MODIFIED" >> $GITHUB_OUTPUT
+
+      - name: Commit latest release version
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b new-version-$VERSION
+          git commit -am "Automatic sync to latest release"
+          git push origin new-version-$VERSION
+          gh pr create --title "New upstream version $VERSION" --body "Latest upstream release" --head new-version-$VERSION --base main
+        env:
+          GITHUB_TOKEN: ${{ secrets.OLLAMA_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.OLLAMA_REPO_TOKEN }}
+          VERSION: ${{ env.VERSION }}
