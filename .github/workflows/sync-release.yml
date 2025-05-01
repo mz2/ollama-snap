@@ -19,8 +19,8 @@ jobs:
       - name: Fetch release versions
         run: |
           VERSION=$(
-            curl -sL https://api.github.com/repos/ollama/ollama/tags | 
-            jq .  | grep name | grep -v tip | grep -v beta | grep -v rc | head -n 1 | cut -d'"' -f4
+            curl -sL https://api.github.com/repos/ollama/ollama/releases | 
+            jq '.[] | select(.prerelease == false) | .tag_name' | sort -rV | head -1
           )
           if [ ${#VERSION} -gt 0 ]; then
             sed -i 's/^\(version: \).*$/\1'"$VERSION"'/' snap/snapcraft.yaml
