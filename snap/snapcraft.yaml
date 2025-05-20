@@ -49,6 +49,6 @@ parts:
 
   ollama:
     plugin: dump
-    source: https://github.com/ollama/ollama/releases/download/$SNAPCRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
+    source: https://github.com/ollama/ollama/releases/download/$CRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
     prime:
       - -lib/ollama/cuda_v11
