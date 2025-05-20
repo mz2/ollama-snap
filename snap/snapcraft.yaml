@@ -1,6 +1,6 @@
 ---
 name: ollama
-version: "v0.6.8"
+version: "v0.7.0"
 base: core24
 summary: Get up and running with large language models locally.
 description: |
@@ -49,6 +49,6 @@ parts:
 
   ollama:
     plugin: dump
-    source: https://github.com/ollama/ollama/releases/download/$SNAPCRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
+    source: https://github.com/ollama/ollama/releases/download/$CRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
     prime:
       - -lib/ollama/cuda_v11
