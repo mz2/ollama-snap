@@ -1,6 +1,6 @@
 ---
 name: ollama
-version: "v0.7.1"
+version: "v0.8.0"
 base: core24
 summary: Get up and running with large language models locally.
 description: |
