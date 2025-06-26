@@ -6,4 +6,5 @@ snapctl set host=127.0.0.1:11434
 snapctl set models="$SNAP_COMMON/models"
 snapctl set origins="*://localhost"
 snapctl set cuda-visible-devices=""
+snapctl set flash-attention=0
 snapctl set debug=0
