@@ -7,3 +7,4 @@ snapctl set models="$SNAP_COMMON/models"
 snapctl set origins="*://localhost"
 snapctl set cuda-visible-devices=""
 snapctl set debug=0
+snapctl set context-length=""
