@@ -1,0 +1,18 @@
+#!/bin/bash
+# This hook runs when gpu-2404 content interface is connected
+
+set -eu
+
+echo "GPU-2404 content interface connected"
+
+# Check if NVIDIA hardware is present
+if lspci -d 10de: | grep -q 'NVIDIA Corporation'; then
+    echo "NVIDIA GPU detected: $(lspci -d 10de: | grep 'NVIDIA Corporation')"
+else
+    echo "No NVIDIA GPU detected"
+fi
+
+# Restart the listener service to pick up new GPU libraries
+if snapctl services "${SNAP_NAME}.listener" | grep -q "enabled"; then
+    snapctl restart "${SNAP_NAME}.listener" || true
+fi
