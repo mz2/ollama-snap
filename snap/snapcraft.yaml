@@ -1,6 +1,6 @@
 ---
 name: ollama
-version: "v0.13.5"
+version: "v0.14.1"
 base: core24
 summary: Get up and running with large language models locally.
 description: |
@@ -48,7 +48,12 @@ parts:
       snap_launcher.sh: bin/snap_launcher.sh
 
   ollama:
-    plugin: dump
-    source: https://github.com/ollama/ollama/releases/download/$CRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tgz
+    plugin: nil
+    build-packages:
+      - curl
+      - zstd
+    override-pull: |
+      curl -Lo ollama.tar.zst https://github.com/ollama/ollama/releases/download/$CRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tar.zst 2>/dev/null
+      tar xf ollama.tar.zst
     prime:
       - -lib/ollama/cuda_v11
