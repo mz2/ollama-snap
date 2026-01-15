@@ -55,5 +55,6 @@ parts:
     override-pull: |
       curl -Lo ollama.tar.zst https://github.com/ollama/ollama/releases/download/$CRAFT_PROJECT_VERSION/ollama-linux-$CRAFT_ARCH_BUILD_FOR.tar.zst 2>/dev/null
       tar xf ollama.tar.zst
+      mv {bin,lib} $CRAFT_PART_INSTALL/
     prime:
       - -lib/ollama/cuda_v11
