@@ -9,3 +9,4 @@ snapctl set cuda-visible-devices=""
 snapctl set flash-attention=0
 snapctl set debug=0
 snapctl set context-length=""
+snapctl set load-timeout=""
