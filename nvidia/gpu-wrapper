@@ -1,0 +1,34 @@
+#!/bin/bash
+# GPU wrapper for Ollama - simplified version of docker-snap's gpu-2404-optional-wrapper
+
+set -e
+
+. "${SNAP}/usr/share/nvidia-container-toolkit/lib"
+
+# Classic systems don't need this wrapper
+if nvidia_support_classic; then
+    exec "$@"
+fi
+
+# Core systems with GPU support
+if nvidia_support_core; then
+    # If gpu-2404 is connected, use the provider wrapper
+    if snapctl is-connected gpu-2404; then
+        # Check if the provider wrapper exists
+        if [ -x "${SNAP}/gpu-2404/bin/gpu-2404-provider-wrapper" ]; then
+            exec "${SNAP}/gpu-2404/bin/gpu-2404-provider-wrapper" "$@"
+        else
+            echo "GPU-2404 connected but no provider wrapper found"
+        fi
+    fi
+    
+    # Core 22 systems don't require wrapper
+    if snapctl is-connected graphics-core22; then
+        exec "$@"
+    fi
+    
+    echo "INFO: GPU content provider not connected. Running without GPU acceleration."
+fi
+
+# Default: run without wrapper
+exec "$@"
