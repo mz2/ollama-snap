@@ -13,18 +13,37 @@ platforms:
   amd64:
   arm64:
 
+plugs:
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+
 apps:
   ollama:
+    command-chain:
+      - bin/system-detection
+      - bin/gpu-wrapper
     command: bin/snap_launcher.sh
     plugs:
       - home
       - removable-media
       - network
       - network-bind
-      - opengl # grants also CUDA based GPU access
+      - opengl
+      - gpu-2404
+      - graphics-core22
     environment:
-      LD_LIBRARY_PATH: "$SNAP/lib/ollama:/var/lib/snapd/lib/gl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      LD_LIBRARY_PATH: "$SNAP/lib/ollama:$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}:/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      LIBGL_DRIVERS_PATH: "$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
+      LIBVA_DRIVERS_PATH: "$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
   listener:
+    command-chain:
+      - bin/system-detection 
+      - bin/gpu-wrapper
     command: bin/snap_launcher.sh serve
     daemon: simple
     install-mode: enable
@@ -36,9 +55,13 @@ apps:
       - network
       - network-bind
       - opengl
+      - gpu-2404
+      - graphics-core22
     environment:
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
-      LD_LIBRARY_PATH: "$SNAP/lib/ollama:/var/lib/snapd/lib/gl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      LD_LIBRARY_PATH: "$SNAP/lib/ollama:$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}:/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      LIBGL_DRIVERS_PATH: "$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
+      LIBVA_DRIVERS_PATH: "$SNAP/gpu-2404/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri:$SNAP/graphics/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
 
 parts:
   launcher:
@@ -46,6 +69,17 @@ parts:
     source: ./snap/local
     organize:
       snap_launcher.sh: bin/snap_launcher.sh
+
+  nvidia-toolkit:
+    plugin: dump
+    source: ./nvidia
+    organize:
+      lib: usr/share/nvidia-container-toolkit/lib
+      system-detection: bin/
+      gpu-wrapper: bin/
+    stage:
+      - bin/*
+      - usr/share/nvidia-container-toolkit/lib
 
   ollama:
     plugin: nil
